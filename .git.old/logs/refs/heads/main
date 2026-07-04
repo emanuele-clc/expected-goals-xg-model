@@ -1,0 +1,4 @@
+0000000000000000000000000000000000000000 c3c6b70b8b87266914efb31cf115ca5ffd35200f peaceful-exciting-albattani <peaceful-exciting-albattani@claude.(none)> 1783180902 +0200	clone: from /sessions/peaceful-exciting-albattani/mnt/Desktop/expected-goals-xg-model/.git
+c3c6b70b8b87266914efb31cf115ca5ffd35200f 6445220e32f4309ccbf68e3823e33178df9d7447 emanuele-clc <e.colecchia02@gmail.com> 1783180970 +0200	commit: Expand dataset to 7 competitions, retrain models, refresh dashboard
+6445220e32f4309ccbf68e3823e33178df9d7447 8d840b1e3dc08877ee3fbcecceb1dd82fcb208e3 emanuele-clc <e.colecchia02@gmail.com> 1783181522 +0200	commit (amend): Expand dataset to 7 competitions, retrain models, refresh dashboard
+8d840b1e3dc08877ee3fbcecceb1dd82fcb208e3 8d4c8d9ef9385a10cdae0ceb0eae1d3a7e34b2e7 emanuele-clc <e.colecchia02@gmail.com> 1783182018 +0200	commit (amend): Expand dataset to 7 competitions, retrain models, refresh dashboard
