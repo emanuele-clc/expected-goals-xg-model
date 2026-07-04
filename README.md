@@ -96,9 +96,11 @@ Beyond the raw shot-level model, `src/team_player_performance.py` and `src/gener
 
 Standard "goals minus xG" leaderboards (above) treat a hot streak on 10 shots the same as a proven edge over 200 - a real problem once you're using this kind of analysis to actually decide something (like recruitment). `src/scouting_radar.py` fixes that: each of the **303 players** with at least 15 shots has their own shot-by-shot (goal - xG) values **bootstrap-resampled 2,000 times**, and players are ranked by the **2.5th percentile of that distribution** - a conservative "skill floor" that only stays positive if the over-performance survives a pessimistic reading of the player's own sample.
 
-**Only 8 of the 303 evaluated players (2.6%) clear that bar.** Every one of them plays in La Liga 2015/16 - the only competition here with enough matches per player to make an individual finishing-skill estimate statistically meaningful. That's not a flaw in the method, it's the method doing its job honestly: most single-tournament "elite finisher" storylines are two or three big moments in a tiny sample, statistically indistinguishable from luck, and this ranking says so instead of pretending otherwise.
+**Only 7 of the 303 evaluated players (2.3%) clear that bar when every competition is pooled together.** Nearly all of them play in La Liga 2015/16 - the only competition here with enough matches per player to make an individual finishing-skill estimate statistically meaningful. That's not a flaw in the method, it's the method doing its job honestly: most single-tournament "elite finisher" storylines are two or three big moments in a tiny sample, statistically indistinguishable from luck, and this ranking says so instead of pretending otherwise.
 
-This is deliberately built as the kind of volume-aware, conservative signal a recruitment or scouting team would actually want before spending a transfer budget on a "hot" attacker: it ignores reputation and price tag entirely and only asks whether the underlying shot-quality data supports the reputation. Full ranking: `data/scouting_radar.csv` / `.json`; interactive, sortable version in the dashboard's Scouting Radar section.
+The dashboard also breaks this ranking out **per competition** rather than only pooled across a player's whole appearance history, which surfaces a genuinely interesting edge case: Alexandra Popp clears the reliability bar specifically within Women's Euro 2022 (16 shots, 6 goals, floor +0.024), even though her floor turns negative once her shots from other tournaments are folded into one pooled estimate. Both readings are statistically valid - they just answer slightly different questions ("was she reliable in this tournament?" vs. "is she reliable across her whole sample here?").
+
+This is deliberately built as the kind of volume-aware, conservative signal a recruitment or scouting team would actually want before spending a transfer budget on a "hot" attacker: it ignores reputation and price tag entirely and only asks whether the underlying shot-quality data supports the reputation. Full ranking: `data/scouting_radar.csv` (pooled) / `data/scouting_radar.json` (pooled + per-competition); interactive, sortable version in the dashboard's Scouting Radar section, including a **compare-two-competitions mode** shared with the Team and Player Leaderboards (see "Live dashboard features" below).
 
 ## Optional 4th model: PyTorch neural network (run locally)
 
@@ -133,6 +135,7 @@ python src/train_xg_model_deep.py
 - **Model Diagnostics Gallery** - the full evaluation plot set (ROC, calibration, bootstrap distribution, feature importance, shot map, xG-vs-StatsBomb, xG-vs-distance, dataset composition).
 - **Team & Player Leaderboards** - sortable, filterable by competition, goals vs. xG. National teams show a flag; club teams show a colored initials badge instead.
 - **Scouting Radar** - the bootstrap-adjusted finishing-reliability ranking described above.
+- **Compare two competitions** - a shared toggle above the Team Leaderboard puts the Team Leaderboard, Player Leaderboard, and Scouting Radar side by side for any two of the 8 competitions at once (e.g. La Liga 2015/16 vs. World Cup 2022), instead of switching the single competition filter back and forth.
 
 ## Reproducing / extending
 
@@ -140,16 +143,4 @@ python src/train_xg_model_deep.py
 2. Point `src/extract_shots.py`'s `COMPETITIONS` list at the `(competition_id, season_id)` pairs you want (check that repo's `data/competitions.json` for available options and match counts - not every listed season is a genuinely complete one).
 3. `python src/extract_shots.py` → regenerates `data/shots_raw.csv`.
 4. `python src/train_xg_model.py` → retrains all three models, regenerates every CSV/JSON result file and `models/*.joblib`.
-5. `python src/export_feature_importance.py`, `python src/make_plots.py`, `python src/team_player_performance.py`, `python src/scouting_radar.py`, `python src/generate_dashboard_data.py` → regenerate everything downstream (plots, leaderboards, Scouting Radar, and every JSON the dashboard embeds).
-6. The dashboard (`docs/index.html`) embeds its data inline for zero-dependency portability; after step 5 you'll need to re-embed the refreshed JSON files into it (the exact substitutions this project used are a matter of record in its commit history, not a script kept in `src/`, since it's a one-time patch rather than a repeatable pipeline step).
-
-## Repository structure
-
-```
-data/       shots_raw.csv, all CSV/JSON result files (model comparison, CV, bootstrap CIs,
-            significance tests, leaderboards, Scouting Radar, dashboard-embedded JSON)
-models/     saved model files (logreg/gboost/xgboost .joblib, penalty rate, best hyperparameters)
-plots/      the 8 PNG evaluation charts (same images served from docs/assets/ for the dashboard)
-src/        every script described above - extraction, training, plotting, aggregation, dashboard data
-docs/       index.html (the live dashboard) + assets/ (copies of the plots it displays)
-```
+5. `python src/export_feature_importance.py`, `python src/make_plots.py`, `python src/team_player_performance.py`, `python sr
