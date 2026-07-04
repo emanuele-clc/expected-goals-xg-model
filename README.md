@@ -63,6 +63,7 @@ Raw extraction script: `src/extract_shots.py`. It walks every match's event file
 | Gradient Boosting (tuned) | 0.801 | [0.775, 0.826] | 0.803 ± 0.021 | 0.0738 | 0.2606 | 0.402 |
 | **XGBoost** (tuned) | **0.801** | **[0.775, 0.826]** | 0.804 ± 0.020 | 0.0737 | 0.2605 | 0.404 |
 | StatsBomb xG (reference) | 0.824 | [0.799, 0.847] | - | 0.0708 | 0.2497 | 0.439 |
+| PyTorch MLP (local run, no CI) | 0.799 | - | - | 0.1750 | 0.5274 | 0.394 |
 
 **Bootstrap pairwise significance (3,000 resamples, all 6 pairs):**
 
@@ -75,4 +76,80 @@ Raw extraction script: `src/extract_shots.py`. It walks every match's event file
 | Logistic Regression vs. StatsBomb xG | -0.0244 | [-0.0363, -0.0130] | 0.0% |
 | Gradient Boosting vs. StatsBomb xG | -0.0229 | [-0.0352, -0.0109] | 0.0% |
 
-**This is a genuine, honestly-reported finding, and it changed with more data - twice now.** In the original 3-competition version of this project, logistic regression beat gradient boosting decisively. Once the dataset grew to 7 tournaments, that gap narrowed sharply. Now, with La Liga's full club season added (17,886 shots total, more than double the previous version), **XGBoost has taken over as the best of the three trained models** - though only by a thin margin (it beats logistic regression in 68.9% of bootstrap resamples and gradient boosting in just 58.6%, nowhere near a knockout). More strikingly, **every trained model now loses to StatsBomb's own xG in 100% of bootstrap resamples** - a bigger, more decisive gap than in the smaller dataset, where the confidence intervals still overlapped. The likely reason: mixing club-season shots with international-tournament shots asks 
+**This is a genuine, honestly-reported finding, and it changed with more data - twice now.** In the original 3-competition version of this project, logistic regression beat gradient boosting decisively. Once the dataset grew to 7 tournaments, that gap narrowed sharply. Now, with La Liga's full club season added (17,886 shots total, more than double the previous version), **XGBoost has taken over as the best of the three trained models** - though only by a thin margin (it beats logistic regression in 68.9% of bootstrap resamples and gradient boosting in just 58.6%, nowhere near a knockout). More strikingly, **every trained model now loses to StatsBomb's own xG in 100% of bootstrap resamples** - a bigger, more decisive gap than in the smaller dataset, where the confidence intervals still overlapped. The likely reason: mixing club-season shots with international-tournament shots asks one general model to fit two somewhat different underlying shot-quality distributions at once, which is a harder problem than fitting either alone. That's a genuine trade-off of the bigger, more varied dataset, reported honestly rather than hidden.
+
+Full numeric results: `data/model_comparison.csv`, `data/cv_results.csv`, `data/bootstrap_ci.csv` / `.json`, `data/significance_test.json`, `models/best_hyperparameters.json`.
+
+**Feature importance tells two different stories depending on the model.** Logistic regression still leans on distance (plus its log-transformed version), same as before. XGBoost - the best-performing model - instead leans overwhelmingly on shot **angle** (`angle_deg`), with raw distance a distant second; headers, nearby defenders, and through-ball assists round out its secondary factors. This isn't a contradiction: angle and distance are correlated in real shot locations (shots near the byline are simultaneously far away in a straight line and at a sharp angle), so a flexible tree ensemble is free to lean on whichever cleanly-separating feature it finds first, while a linear model needs the specific engineered log/interaction terms to make distance alone do the work. See `plots/feature_importance.png` (all three models) and the dashboard's Feature Importance chart (XGBoost) for the full breakdown.
+
+## Team and player xG performance report
+
+Beyond the raw shot-level model, `src/team_player_performance.py` and `src/generate_dashboard_data.py` apply the trained **XGBoost** model (the best-performing of the three) to every shot in the dataset (all 17,886, not just the held-out test set - this is a retrospective descriptive analysis, not a predictive evaluation) and aggregate by team and player: actual goals scored vs. total expected goals, and the gap between them. This is the standard "xG over/underperformance" analysis published by outlets like Understat and Opta. Full tables: `data/team_performance.csv`, `data/player_performance.csv`.
+
+**Most notable findings (all 8 competitions combined):**
+
+- **Real Madrid: +30.39 xG differential** (108 goals from 77.61 xG, 717 shots) and **Atlético Madrid: +12.25** sit far ahead of every international team - almost entirely a function of La Liga's much larger per-team sample (a club plays 30+ more matches in a season than any national team gets in a single tournament), not necessarily a bigger underlying skill gap. Filter the dashboard to a single tournament to compare teams on equal footing again.
+- **Brazil: -10.58** and **Germany: -9.62** anchor the bottom of the combined table.
+- At player level, **Luis Suárez (+11.89 from 139 shots)** and **Gareth Bale (+10.32 from 81)** top the list, both from La Liga - again, the competition with by far the most shots per player. **Marcus Berg (-3.44, zero goals from 17 shots)** anchors the bottom, from a short international sample.
+
+## Scouting Radar: a statistically robust finishing index
+
+Standard "goals minus xG" leaderboards (above) treat a hot streak on 10 shots the same as a proven edge over 200 - a real problem once you're using this kind of analysis to actually decide something (like recruitment). `src/scouting_radar.py` fixes that: each of the **303 players** with at least 15 shots has their own shot-by-shot (goal - xG) values **bootstrap-resampled 2,000 times**, and players are ranked by the **2.5th percentile of that distribution** - a conservative "skill floor" that only stays positive if the over-performance survives a pessimistic reading of the player's own sample.
+
+**Only 8 of the 303 evaluated players (2.6%) clear that bar.** Every one of them plays in La Liga 2015/16 - the only competition here with enough matches per player to make an individual finishing-skill estimate statistically meaningful. That's not a flaw in the method, it's the method doing its job honestly: most single-tournament "elite finisher" storylines are two or three big moments in a tiny sample, statistically indistinguishable from luck, and this ranking says so instead of pretending otherwise.
+
+This is deliberately built as the kind of volume-aware, conservative signal a recruitment or scouting team would actually want before spending a transfer budget on a "hot" attacker: it ignores reputation and price tag entirely and only asks whether the underlying shot-quality data supports the reputation. Full ranking: `data/scouting_radar.csv` / `.json`; interactive, sortable version in the dashboard's Scouting Radar section.
+
+## Optional 4th model: PyTorch neural network (run locally)
+
+`src/train_xg_model_deep.py` trains a small feed-forward neural network on the exact same features and train/test split as the other three models, for a genuinely fair 4-way comparison. **It is not run as part of this repo's committed results** - PyTorch isn't installed in the environment this project was built in, and isn't a dependency of `requirements.txt`, so this step is entirely optional and yours to run:
+
+```
+pip install torch
+python src/train_xg_model_deep.py
+```
+
+**Set honest expectations before you run it:** tabular data (rows of distance/angle/pressure, not images or text) is the one domain where deep learning does not reliably beat simpler methods - a well-documented empirical finding (Shwartz-Ziv & Armon, *"Tabular Data: Deep Learning is Not All You Need"*, 2021), not a guess.
+
+**Real result from an actual local run (included in the results table above):** AUC 0.799 - ties logistic regression almost exactly and sits in the same neighborhood as gradient boosting and XGBoost, confirming the expectation above. The more interesting finding is calibration: Brier score 0.175 and log loss 0.527, both dramatically worse than every other model (Brier ≈ 0.074, log loss ≈ 0.26) despite the similar AUC. In other words, the network ranks shots about as well as the other models, but its predicted probabilities themselves are far less trustworthy. The likely cause is the `pos_weight` class-imbalance correction used in the loss function (needed because only ~11% of shots are goals) - it helps the network rank correctly under imbalance but pushes its raw output probabilities away from being honestly calibrated, a known trade-off of that technique that would need a separate calibration step (e.g. Platt scaling / isotonic regression) to fix. This is exactly the kind of nuanced, non-obvious result worth reporting rather than smoothing over.
+
+## Deploying to GitHub Pages
+
+`docs/index.html` needs no build step - GitHub Pages can serve it directly:
+
+1. Push this repo to GitHub (`git remote add origin <your-repo-url> && git push origin main`, if not already done).
+2. On GitHub: **Settings → Pages**.
+3. Under **Build and deployment → Source**, choose **Deploy from a branch**.
+4. Branch: **main**, folder: **/docs**. Save.
+5. GitHub builds and publishes at `https://<your-username>.github.io/<repo-name>/` within a minute or two (check the Pages settings page for the exact URL and build status).
+6. Any future push to `main` that touches `docs/` will redeploy automatically - no extra steps needed.
+
+## Live dashboard features
+
+- **Try It Yourself calculator** - click anywhere on the pitch, adjust the situation, and get an instant xG prediction. Runs the real trained **logistic regression** model's exact coefficients in vanilla JavaScript (not XGBoost, the best-performing model overall - a linear model's coefficients can be copied into JS exactly, while a tree ensemble like XGBoost cannot be without shipping the whole model to the browser). You can also place defenders manually (red markers) - the model's `n_opponents_close` feature is computed live from their positions, using the same 3-yard threshold as the real feature extraction.
+- **Shot Map** - all 3,486 held-out test-set shots plotted on a pitch, sized by predicted xG (XGBoost), colored by outcome.
+- **Player Shot Maps** - drill down competition → team → player to see every shot a player took, with colored initials avatars next to every name.
+- **Model Comparison** - AUC bar chart with 95% CIs for all three trained models plus StatsBomb's reference xG (and the optional PyTorch result, once run locally), and a feature-importance chart for the best model.
+- **Model Diagnostics Gallery** - the full evaluation plot set (ROC, calibration, bootstrap distribution, feature importance, shot map, xG-vs-StatsBomb, xG-vs-distance, dataset composition).
+- **Team & Player Leaderboards** - sortable, filterable by competition, goals vs. xG. National teams show a flag; club teams show a colored initials badge instead.
+- **Scouting Radar** - the bootstrap-adjusted finishing-reliability ranking described above.
+
+## Reproducing / extending
+
+1. Clone StatsBomb's open-data repo (shallow + blob-filtered, to avoid downloading everything): see the pattern used for La Liga in this project's history, or simply `git clone --depth 1 https://github.com/statsbomb/open-data.git`.
+2. Point `src/extract_shots.py`'s `COMPETITIONS` list at the `(competition_id, season_id)` pairs you want (check that repo's `data/competitions.json` for available options and match counts - not every listed season is a genuinely complete one).
+3. `python src/extract_shots.py` → regenerates `data/shots_raw.csv`.
+4. `python src/train_xg_model.py` → retrains all three models, regenerates every CSV/JSON result file and `models/*.joblib`.
+5. `python src/export_feature_importance.py`, `python src/make_plots.py`, `python src/team_player_performance.py`, `python src/scouting_radar.py`, `python src/generate_dashboard_data.py` → regenerate everything downstream (plots, leaderboards, Scouting Radar, and every JSON the dashboard embeds).
+6. The dashboard (`docs/index.html`) embeds its data inline for zero-dependency portability; after step 5 you'll need to re-embed the refreshed JSON files into it (the exact substitutions this project used are a matter of record in its commit history, not a script kept in `src/`, since it's a one-time patch rather than a repeatable pipeline step).
+
+## Repository structure
+
+```
+data/       shots_raw.csv, all CSV/JSON result files (model comparison, CV, bootstrap CIs,
+            significance tests, leaderboards, Scouting Radar, dashboard-embedded JSON)
+models/     saved model files (logreg/gboost/xgboost .joblib, penalty rate, best hyperparameters)
+plots/      the 8 PNG evaluation charts (same images served from docs/assets/ for the dashboard)
+src/        every script described above - extraction, training, plotting, aggregation, dashboard data
+docs/       index.html (the live dashboard) + assets/ (copies of the plots it displays)
+```

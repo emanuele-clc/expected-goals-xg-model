@@ -25,7 +25,6 @@ from sklearn.model_selection import train_test_split
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MIN_SHOTS_PLAYER = 8
-SAMPLE_SIZE = 300
 RNG_SEED = 42
 
 # (competition_name, season_name) -> (comp_code, display label)
@@ -126,9 +125,7 @@ X_train, X_test, y_train, y_test, idx_train, idx_test = train_test_split(
 test_df = model_df.loc[idx_test].copy()
 test_df["pred_xg"] = xgboost_model.predict_proba(X_test)[:, 1]
 
-rng = np.random.RandomState(RNG_SEED)
-sample_idx = rng.choice(test_df.index, size=min(SAMPLE_SIZE, len(test_df)), replace=False)
-sample = test_df.loc[sample_idx]
+sample = test_df  # show every held-out test-set shot, not a sub-sample
 
 shot_sample = [
     [round(float(r.x), 1), round(float(r.y), 1), int(r.is_goal), round(float(r.pred_xg), 3), r.body_part, r.comp_code]
