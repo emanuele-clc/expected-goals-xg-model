@@ -1,15 +1,12 @@
 {
-  "gb_minus_lr_mean": -0.022008732030228653,
-  "gb_minus_lr_ci": [
-    -0.04867876880341585,
-    0.0023227306459628243
-  ],
-  "p_gb_beats_lr": 0.041,
-  "gb_minus_statsbomb_mean": -0.03948888024729982,
-  "gb_minus_statsbomb_ci": [
-    -0.07100497297197876,
-    -0.009297597085262344
-  ],
-  "p_gb_beats_statsbomb": 0.0036666666666666666,
-  "n_bootstrap": 3000
+ "n_boot": 3000,
+ "mean_diff_gb_minus_lr": -0.004580043425874622,
+ "ci_diff_gb_minus_lr": [
+  -0.016531533254937773,
+  0.007418886815297239
+ ],
+ "p_gb_beats_lr": 0.22133333333333333,
+ "p_lr_beats_gb": 0.7786666666666666,
+ "mean_diff_gb_minus_sb": -0.021887215112813236,
+ "p_gb_beats_statsbomb": 0.0026666666666666666
 }

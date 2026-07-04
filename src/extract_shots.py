@@ -17,9 +17,13 @@ import json, os, math, csv
 # EVENTS_DIR / MATCHES_DIR at it below.
 EVENTS_DIR = "/tmp/sbtest/data/events"
 COMPETITIONS = [
-    (43, 3),    # FIFA World Cup 2018
-    (72, 30),   # Women's World Cup 2019
-    (55, 43),   # UEFA Euro 2020
+    (43, 3),      # FIFA World Cup 2018
+    (72, 30),     # Women's World Cup 2019
+    (55, 43),     # UEFA Euro 2020
+    (43, 106),    # FIFA World Cup 2022
+    (53, 106),    # UEFA Women's Euro 2022
+    (223, 282),   # Copa America 2024
+    (1267, 107),  # Africa Cup of Nations 2023
 ]
 MATCHES_DIR = "/tmp/sbtest/data/matches"
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -64,6 +68,7 @@ for match_id, minfo in match_info.items():
     competition_name = minfo.get("competition", {}).get("competition_name", "")
     competition_stage = minfo.get("competition_stage", {}).get("name", "")
     gender = minfo.get("home_team", {}).get("home_team_gender", "")
+    season_name = minfo.get("season", {}).get("season_name", "")
 
     for e in events:
         if e.get('type',{}).get('name') != 'Shot':
@@ -122,6 +127,7 @@ for match_id, minfo in match_info.items():
             'match_id': match_id,
             'competition_name': competition_name,
             'competition_stage': competition_stage,
+            'season_name': season_name,
             'gender': gender,
             'player_name': player_name,
             'team_name': team_name,
@@ -138,4 +144,19 @@ for match_id, minfo in match_info.items():
             'one_on_one': int(one_on_one),
             'aerial_won': int(aerial_won),
             'n_opponents_close': n_opponents_close,
-            'gk_position
+            'gk_positioned': gk_positioned,
+            'statsbomb_xg': statsbomb_xg,
+            'is_goal': is_goal,
+        })
+
+print("total shots extracted:", len(rows))
+if parse_failures:
+    print(f"{len(parse_failures)} matches failed to parse:", parse_failures[:5])
+if rows:
+    keys = list(rows[0].keys())
+    os.makedirs(os.path.dirname(OUT_CSV), exist_ok=True)
+    with open(OUT_CSV, 'w', newline='') as f:
+        w = csv.DictWriter(f, fieldnames=keys)
+        w.writeheader()
+        w.writerows(rows)
+    print("saved to", OUT_CSV)

@@ -1,7 +1,9 @@
 """
 Expected Goals (xG) model — v2
-Dataset: StatsBomb open data — FIFA World Cup 2018 + Women's World Cup 2019 + UEFA Euro 2020
-(167 matches, 4,309 shots, 2 genders, 3 confederation/international contexts)
+Dataset: StatsBomb open data across 7 competitions — FIFA World Cup 2018 & 2022,
+Women's World Cup 2019, UEFA Euro 2020, UEFA Women's Euro 2022, Africa Cup of
+Nations 2023, and Copa America 2024
+(346 matches, 8,718 shots, 2 genders, multiple confederations/international contexts)
 
 Run from anywhere; all paths are resolved relative to this repository
 (the parent of this file's directory), so `python src/train_xg_model.py`
@@ -9,12 +11,20 @@ works out of the box using the shots_raw.csv already committed to the repo
 — no need to re-download the StatsBomb data.
 
 Methodology upgrades over v1:
-  - Multi-competition dataset (3x larger, cross-gender)
+  - Multi-competition dataset (now 7 tournaments, 2x larger than the original v2, cross-gender)
   - Extra features: one_on_one, aerial_won, assist_type (cross/through-ball/cut-back/corner)
   - Held-out test set + separate 5-fold CV hyperparameter search (no leakage into final metrics)
   - RandomizedSearchCV for both models
   - Bootstrap 95% confidence intervals on all metrics, incl. paired bootstrap for
     model-vs-model AUC difference significance
+
+Note on gradient boosting's n_iter: the search below uses n_iter=25 for
+RandomizedSearchCV on the gradient boosting model. That's what was used to
+produce the results and numbers committed in this repo (data/, models/,
+docs/index.html), tuned to comfortably fit within a 2-CPU-core development
+sandbox. If you're running this on a machine with more cores, feel free to
+raise it (e.g. to 40+) for a slightly more thorough hyperparameter search —
+expect similar results, since the search had already started converging.
 """
 import json
 import os
@@ -113,7 +123,7 @@ gboost_search = RandomizedSearchCV(
         "clf__l2_regularization": [0.0, 0.5, 1.0, 2.0, 5.0],
         "clf__min_samples_leaf": [10, 20, 30, 50],
     },
-    n_iter=40, cv=cv, scoring="roc_auc", random_state=42, n_jobs=-1,
+    n_iter=25, cv=cv, scoring="roc_auc", random_state=42, n_jobs=-1,
 )
 gboost_search.fit(X_train, y_train)
 print("Best gboost params:", gboost_search.best_params_, "CV AUC:", gboost_search.best_score_)

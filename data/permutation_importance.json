@@ -1,0 +1,66 @@
+[
+ {
+  "feature": "distance",
+  "importance": 0.2091
+ },
+ {
+  "feature": "log_distance",
+  "importance": 0.1213
+ },
+ {
+  "feature": "angle_x_distance",
+  "importance": 0.0191
+ },
+ {
+  "feature": "distance_sq",
+  "importance": 0.0149
+ },
+ {
+  "feature": "header",
+  "importance": 0.013
+ },
+ {
+  "feature": "n_opponents_close",
+  "importance": 0.0104
+ },
+ {
+  "feature": "assist_type",
+  "importance": 0.0104
+ },
+ {
+  "feature": "technique",
+  "importance": 0.0083
+ },
+ {
+  "feature": "play_pattern",
+  "importance": 0.0035
+ },
+ {
+  "feature": "aerial_won",
+  "importance": 0.0025
+ },
+ {
+  "feature": "one_on_one",
+  "importance": 0.0018
+ },
+ {
+  "feature": "angle_deg",
+  "importance": 0.0006
+ },
+ {
+  "feature": "gk_positioned",
+  "importance": 0.0
+ },
+ {
+  "feature": "first_time",
+  "importance": -0.0
+ },
+ {
+  "feature": "is_free_kick",
+  "importance": -0.0004
+ },
+ {
+  "feature": "under_pressure",
+  "importance": -0.0008
+ }
+]
