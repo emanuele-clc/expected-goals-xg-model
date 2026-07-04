@@ -309,7 +309,7 @@
   <section id="shotmap" class="reveal">
     <p class="eyebrow">Interactive</p>
     <h2>Shot Map</h2>
-    <p class="section-note"><strong>What this shows:</strong> All 3,486 held-out test-set shots - data the model never saw during training. Each dot sits at the shot's real pitch location; bubble size is the model's predicted xG; color is what actually happened. Hover a shot for details, or use the competition filter above to isolate one tournament.</p>
+    <p class="section-note"><strong>What this shows:</strong> All 3,486 held-out test-set shots - data the model never saw during training. Each dot sits at the shot's real pitch location; bubble size is the model's predicted xG; color is what actually happened. Hover a shot for details, or use the competition filter above to isolate one tournament. <strong>Note:</strong> this is a ~20% held-out sample of each competition, not every shot that competition ever had - filtering to a single tournament (e.g. World Cup 2018) intentionally shows a small slice (its ~20% share, around 21 goals here), not that tournament's full goal tally.</p>
     <p class="section-note"><strong>What it tells you:</strong> green dots (goals) cluster tightly around the six-yard box and penalty spot, while red dots (misses) are scattered far wider, including from distance - exactly the pattern you'd expect if the model has correctly learned that proximity and angle to goal are what matter most.</p>
     <div class="card">
       <div class="toggle-row">
@@ -768,9 +768,15 @@ new Chart(document.getElementById('aucChart'), {
     labels: ['Logistic Regression', 'Gradient Boosting', 'XGBoost', 'StatsBomb xG', 'PyTorch MLP (local run)'],
     datasets: [{
       label: 'AUC (95% CI range, single point for local run)',
-      data: [[0.7740, 0.8241], [0.7747, 0.8257], [0.7751, 0.8263], [0.7992, 0.8466], [0.7992, 0.7992]],
+      // PyTorch is a single local run, not a bootstrap CI - a true [x,x] range
+      // is a zero-width floating bar (Chart.js renders nothing for it), so give
+      // it a small fixed visible width purely for display; the tooltip below
+      // still reports the real single-point AUC, not this display-only range.
+      data: [[0.7740, 0.8241], [0.7747, 0.8257], [0.7751, 0.8263], [0.7992, 0.8466], [0.7992 - 0.003, 0.7992 + 0.003]],
+      realValue: [null, null, null, null, 0.7992],
       backgroundColor: ['#4b8fe8', '#f2924a', '#9d7cf2', '#2fd873', '#34d3c5'],
       borderRadius: 4,
+      minBarLength: 6,
     }]
   },
   options: {
@@ -781,7 +787,10 @@ new Chart(document.getElementById('aucChart'), {
       x: { min: 0.74, max: 0.87, grid: { color: '#202a22' }, ticks: { color: '#a7b2a3' } },
       y: { grid: { display: false }, ticks: { color: '#f3f6f2' } }
     },
-    plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => ctx.raw[0] === ctx.raw[1] ? ('AUC: ' + ctx.raw[0].toFixed(3) + ' (single local run, no bootstrap CI)') : ('CI: [' + ctx.raw[0].toFixed(3) + ', ' + ctx.raw[1].toFixed(3) + ']') } } }
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => {
+      const real = ctx.dataset.realValue[ctx.dataIndex];
+      return real != null ? ('AUC: ' + real.toFixed(3) + ' (single local run, no bootstrap CI)') : ('CI: [' + ctx.raw[0].toFixed(3) + ', ' + ctx.raw[1].toFixed(3) + ']');
+    } } } }
   }
 });
 

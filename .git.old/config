@@ -1,8 +1,0 @@
-[core]
-	repositoryformatversion = 0
-	filemode = true
-	bare = false
-	logallrefupdates = true
-[user]
-	name = emanuele-clc
-	email = e.colecchia02@gmail.com

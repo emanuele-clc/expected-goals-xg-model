@@ -2,7 +2,7 @@
 
 An xG model built on real StatsBomb open event data across **eight competitions** - seven international tournaments plus a full club season (La Liga 2015/16) - comparing three tuned models (logistic regression, gradient boosting, and XGBoost) with cross-validation, a held-out test set, and full pairwise bootstrap significance testing, benchmarked against StatsBomb's own published xG.
 
-An interactive dashboard (`docs/index.html`) ships with the project: a live in-browser xG calculator (the real trained model, running client-side), filterable shot maps, per-player shot history drill-downs, sortable team/player over-performance leaderboards, and a **Scouting Radar** - a statistically-robust ranking of players whose shot over-performance is unlikely to be a hot streak - no server or install required, just open the file.
+An interactive dashboard (`docs/index.html`) ships with the project: a live in-browser xG calculator (the real trained model, running client-side), filterable shot maps, per-player shot history drill-downs, sortable team/player over-performance leaderboards, a two-competition comparison mode, and a **Scouting Radar** - a statistically-robust ranking of players whose shot over-performance is unlikely to be a hot streak - no server or install required, just open the file.
 
 ## Live demo
 
@@ -35,7 +35,7 @@ To fully reproduce the dataset and retrain from scratch you need a local clone o
   | Copa América | 2024 | Men | 32 | 790 |
   | **La Liga (club)** | **2015/16** | Men | **380** | **9,168** |
 
-  La Liga 2015/16 is the only complete full club season available in StatsBomb's free open-data release (every other La Liga season on offer is a partial, Barcelona-only release of 33-36 matches); it alone contributes over half the dataset's shots, purely because a club plays 30-38 league matches a season versus a handful of games in a single international tournament.
+  La Liga 2015/16 is the only complete full club season available in StatsBomb's free open-data release (every other La Liga season on offer is a partial, Barcelona-only release of 33-38 matches); it alone contributes over half the dataset's shots, purely because a club plays 30-38 league matches a season versus a handful of games in a single international tournament.
 - Obtained via a shallow, blob-filtered `git clone` of the open-data repo, then checking out only the required `matches/` and `events/` JSON files (full files, not previews/truncated fetches).
 - **17,886 total shots** extracted; 17,428 non-penalty shots used for modeling (458 penalties held out - see Methodology).
 - Each shot is tagged with `competition_name` **and** `season_name`, since StatsBomb reuses the same `competition_name` ("FIFA World Cup") for both the 2018 and 2022 tournaments - without the season field the two would silently merge under one filter.
@@ -129,7 +129,7 @@ python src/train_xg_model_deep.py
 ## Live dashboard features
 
 - **Try It Yourself calculator** - click anywhere on the pitch, adjust the situation, and get an instant xG prediction. Runs the real trained **logistic regression** model's exact coefficients in vanilla JavaScript (not XGBoost, the best-performing model overall - a linear model's coefficients can be copied into JS exactly, while a tree ensemble like XGBoost cannot be without shipping the whole model to the browser). You can also place defenders manually (red markers) - the model's `n_opponents_close` feature is computed live from their positions, using the same 3-yard threshold as the real feature extraction.
-- **Shot Map** - all 3,486 held-out test-set shots plotted on a pitch, sized by predicted xG (XGBoost), colored by outcome.
+- **Shot Map** - all 3,486 held-out test-set shots plotted on a pitch, sized by predicted xG (XGBoost), colored by outcome. This is a ~20% held-out sample of each competition, not that competition's full shot/goal tally - filtering to one tournament intentionally shows only its ~20% slice.
 - **Player Shot Maps** - drill down competition → team → player to see every shot a player took, with colored initials avatars next to every name.
 - **Model Comparison** - AUC bar chart with 95% CIs for all three trained models plus StatsBomb's reference xG (and the optional PyTorch result, once run locally), and a feature-importance chart for the best model.
 - **Model Diagnostics Gallery** - the full evaluation plot set (ROC, calibration, bootstrap distribution, feature importance, shot map, xG-vs-StatsBomb, xG-vs-distance, dataset composition).
@@ -143,4 +143,16 @@ python src/train_xg_model_deep.py
 2. Point `src/extract_shots.py`'s `COMPETITIONS` list at the `(competition_id, season_id)` pairs you want (check that repo's `data/competitions.json` for available options and match counts - not every listed season is a genuinely complete one).
 3. `python src/extract_shots.py` → regenerates `data/shots_raw.csv`.
 4. `python src/train_xg_model.py` → retrains all three models, regenerates every CSV/JSON result file and `models/*.joblib`.
-5. `python src/export_feature_importance.py`, `python src/make_plots.py`, `python src/team_player_performance.py`, `python sr
+5. `python src/export_feature_importance.py`, `python src/make_plots.py`, `python src/team_player_performance.py`, `python src/scouting_radar.py`, `python src/generate_dashboard_data.py` → regenerate everything downstream (plots, leaderboards, Scouting Radar, and every JSON the dashboard embeds).
+6. The dashboard (`docs/index.html`) embeds its data inline for zero-dependency portability; after step 5 you'll need to re-embed the refreshed JSON files into it (the exact substitutions this project used are a matter of record in its commit history, not a script kept in `src/`, since it's a one-time patch rather than a repeatable pipeline step).
+
+## Repository structure
+
+```
+data/       shots_raw.csv, all CSV/JSON result files (model comparison, CV, bootstrap CIs,
+            significance tests, leaderboards, Scouting Radar, dashboard-embedded JSON)
+models/     saved model files (logreg/gboost/xgboost .joblib, penalty rate, best hyperparameters)
+plots/      the 8 PNG evaluation charts (same images served from docs/assets/ for the dashboard)
+src/        every script described above - extraction, training, plotting, aggregation, dashboard data
+docs/       index.html (the live dashboard) + assets/ (copies of the plots it displays)
+```
