@@ -1,12 +1,21 @@
 {
  "logreg": {
-  "clf__C": 0.5736152510448681
+  "clf__C": 0.1743328822199989
  },
  "gboost": {
-  "clf__min_samples_leaf": 10,
-  "clf__max_iter": 100,
-  "clf__max_depth": 3,
-  "clf__learning_rate": 0.08,
+  "clf__min_samples_leaf": 20,
+  "clf__max_iter": 250,
+  "clf__max_depth": 4,
+  "clf__learning_rate": 0.1,
   "clf__l2_regularization": 5.0
+ },
+ "xgboost": {
+  "clf__subsample": 0.8,
+  "clf__reg_lambda": 2.0,
+  "clf__n_estimators": 200,
+  "clf__min_child_weight": 5,
+  "clf__max_depth": 4,
+  "clf__learning_rate": 0.02,
+  "clf__colsample_bytree": 0.8
  }
 }

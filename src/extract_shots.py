@@ -5,16 +5,14 @@ Extracts every "Shot" event from StatsBomb open-data event files across
 multiple competitions and builds a flat shots_raw.csv with engineered features,
 including a simple assist-type feature derived from the key pass event,
 plus player and team names for downstream aggregate analysis.
+
+Each shot is tagged with competition_name AND season_name, since StatsBomb
+reuses the same competition_name ("FIFA World Cup") for both the 2018 and
+2022 tournaments - without the season field the two would silently merge
+under one filter.
 """
 import json, os, math, csv
 
-# NOTE: this script regenerates shots_raw.csv FROM SCRATCH out of a full local
-# clone of https://github.com/statsbomb/open-data (several GB — not part of
-# this repo). shots_raw.csv is already committed under data/, so you normally
-# do NOT need to run this script at all: just use data/shots_raw.csv directly
-# with train_xg_model.py / make_plots.py / team_player_performance.py.
-# If you do want to regenerate it, clone open-data locally and point
-# EVENTS_DIR / MATCHES_DIR at it below.
 EVENTS_DIR = "/tmp/sbtest/data/events"
 COMPETITIONS = [
     (43, 3),      # FIFA World Cup 2018
@@ -24,10 +22,10 @@ COMPETITIONS = [
     (53, 106),    # UEFA Women's Euro 2022
     (223, 282),   # Copa America 2024
     (1267, 107),  # Africa Cup of Nations 2023
+    (11, 27),     # La Liga 2015/2016 (full season, club football)
 ]
 MATCHES_DIR = "/tmp/sbtest/data/matches"
-BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-OUT_CSV = os.path.join(BASE, "data", "shots_raw.csv")
+OUT_CSV = "/sessions/peaceful-exciting-albattani/mnt/outputs/xg_model_v2/data/shots_raw.csv"
 
 match_info = {}
 for comp_id, season_id in COMPETITIONS:
@@ -67,8 +65,8 @@ for match_id, minfo in match_info.items():
     by_id = {e["id"]: e for e in events}
     competition_name = minfo.get("competition", {}).get("competition_name", "")
     competition_stage = minfo.get("competition_stage", {}).get("name", "")
-    gender = minfo.get("home_team", {}).get("home_team_gender", "")
     season_name = minfo.get("season", {}).get("season_name", "")
+    gender = minfo.get("home_team", {}).get("home_team_gender", "")
 
     for e in events:
         if e.get('type',{}).get('name') != 'Shot':

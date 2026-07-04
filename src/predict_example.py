@@ -1,14 +1,21 @@
 """
-Quick example: load the trained logistic regression xG model and score a
-hand-made shot, without needing to re-download any StatsBomb data.
+Quick example: load all three trained xG models (logistic regression,
+gradient boosting, XGBoost) and score a handful of hand-made shots side by
+side, without needing to re-download any StatsBomb data.
 
 Run with:  python src/predict_example.py
 """
 import math
+import os
 import joblib
 import pandas as pd
 
-MODEL_PATH = "models/logreg_xg_model.joblib"
+BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+MODEL_PATHS = {
+    "LogReg": os.path.join(BASE, "models", "logreg_xg_model.joblib"),
+    "GBoost": os.path.join(BASE, "models", "gboost_xg_model.joblib"),
+    "XGBoost": os.path.join(BASE, "models", "xgboost_xg_model.joblib"),
+}
 
 GOAL_X, GOAL_Y = 120.0, 40.0
 POST1, POST2 = (120.0, 36.0), (120.0, 44.0)
@@ -48,7 +55,7 @@ def make_shot(x, y, body_part="Right Foot", technique="Normal", play_pattern="Re
 
 
 if __name__ == "__main__":
-    model = joblib.load(MODEL_PATH)
+    models = {name: joblib.load(path) for name, path in MODEL_PATHS.items()}
 
     examples = {
         "Penalty spot, calm (no pressure, 1v1 not counted)": make_shot(108, 40, n_opponents_close=0),
@@ -58,8 +65,8 @@ if __name__ == "__main__":
         "Long-range effort, 25 yards out, central": make_shot(95, 40),
     }
 
-    print(f"{'Scenario':55s} predicted xG")
-    print("-" * 75)
+    print(f"{'Scenario':55s} {'LogReg':>8s} {'GBoost':>8s} {'XGBoost':>8s}")
+    print("-" * 82)
     for name, X in examples.items():
-        xg = model.predict_proba(X)[0, 1]
-        print(f"{name:55s} {xg:.3f}")
+        preds = [models[m].predict_proba(X)[0, 1] for m in ("LogReg", "GBoost", "XGBoost")]
+        print(f"{name:55s} {preds[0]:8.3f} {preds[1]:8.3f} {preds[2]:8.3f}")

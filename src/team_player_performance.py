@@ -1,11 +1,13 @@
 """
 Team and player xG performance report.
 
-Applies the trained logistic regression xG model to every shot in the dataset
-(not just the held-out test set — this is a retrospective descriptive analysis,
-not a predictive evaluation) to compute, for every team and player across the
-3 competitions: actual goals scored vs. total expected goals (xG), and the gap
-between them (over/underperformance relative to underlying chance quality).
+Applies the trained XGBoost xG model (the best-performing of the three
+trained models on this larger, more diverse dataset) to every shot in the
+dataset (not just the held-out test set - this is a retrospective descriptive
+analysis, not a predictive evaluation) to compute, for every team and player
+across all 8 competitions: actual goals scored vs. total expected goals (xG),
+and the gap between them (over/underperformance relative to underlying
+chance quality).
 
 Run from anywhere; all paths are resolved relative to this repository.
 """
@@ -39,8 +41,8 @@ numeric_features = [
 ]
 categorical_features = ["technique", "play_pattern", "assist_type"]
 
-logreg = joblib.load(os.path.join(BASE, "models", "logreg_xg_model.joblib"))
-model_df["xg"] = logreg.predict_proba(model_df[numeric_features + categorical_features])[:, 1]
+xgboost_model = joblib.load(os.path.join(BASE, "models", "xgboost_xg_model.joblib"))
+model_df["xg"] = xgboost_model.predict_proba(model_df[numeric_features + categorical_features])[:, 1]
 
 # Penalties get the fixed empirical conversion rate as their xG
 penalties = df[df.shot_type == "Penalty"].copy()

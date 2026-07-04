@@ -2,3 +2,5 @@ __pycache__/
 *.pyc
 .DS_Store
 .ipynb_checkpoints/
+models/deep_xg_model.pt
+data/deep_model_result.json

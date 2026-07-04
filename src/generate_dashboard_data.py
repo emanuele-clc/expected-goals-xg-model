@@ -5,10 +5,14 @@ Generates all data files consumed by docs/index.html:
   - data/player_shots_nested.json    {comp_code: {team_name: {player_name: [[x,y,is_goal,xg,body_part],...]}}}
   - data/logreg_coeffs.json          scaler/coef/categories for the client-side "Try It Yourself" calculator
 
-Applies the trained logistic regression xG model to every shot (retrospective
-descriptive analysis for leaderboards / shot maps), and reuses the exact
-held-out test split (random_state=42) for the shot-map sample so the sample's
-predicted xG values are genuine out-of-sample predictions, not overfit ones.
+Applies the trained XGBoost xG model (best of the three trained models) to
+every shot for the retrospective leaderboards / shot maps, and reuses the
+exact held-out test split (random_state=42) for the shot-map sample so the
+sample's predicted xG values are genuine out-of-sample predictions, not
+overfit ones. The logistic regression model's coefficients are separately
+exported for the client-side "Try It Yourself" calculator, since only a
+linear model's coefficients can be faithfully replicated in plain JS
+(tree ensembles like XGBoost cannot).
 
 Run from anywhere; all paths are resolved relative to this repository.
 """
@@ -33,6 +37,7 @@ COMP_MAP = {
     ("UEFA Women's Euro", "2022"): ("WEURO22", "Women's Euro 2022"),
     ("Copa America", "2024"): ("COPA24", "Copa America 2024"),
     ("African Cup of Nations", "2023"): ("AFCON23", "Africa Cup of Nations 2023"),
+    ("La Liga", "2015/2016"): ("LALIGA1516", "La Liga 2015/16"),
 }
 
 df = pd.read_csv(os.path.join(BASE, "data", "shots_raw.csv"), keep_default_na=False, na_values=[""])
@@ -67,7 +72,8 @@ numeric_features = [
 categorical_features = ["technique", "play_pattern", "assist_type"]
 
 logreg = joblib.load(os.path.join(BASE, "models", "logreg_xg_model.joblib"))
-model_df["xg"] = logreg.predict_proba(model_df[numeric_features + categorical_features])[:, 1]
+xgboost_model = joblib.load(os.path.join(BASE, "models", "xgboost_xg_model.joblib"))
+model_df["xg"] = xgboost_model.predict_proba(model_df[numeric_features + categorical_features])[:, 1]
 
 penalties = df[df.shot_type == "Penalty"].copy()
 penalties["xg"] = PENALTY_XG
@@ -118,7 +124,7 @@ X_train, X_test, y_train, y_test, idx_train, idx_test = train_test_split(
     X, y, model_df.index, test_size=0.2, random_state=RNG_SEED, stratify=y)
 
 test_df = model_df.loc[idx_test].copy()
-test_df["pred_xg"] = logreg.predict_proba(X_test)[:, 1]
+test_df["pred_xg"] = xgboost_model.predict_proba(X_test)[:, 1]
 
 rng = np.random.RandomState(RNG_SEED)
 sample_idx = rng.choice(test_df.index, size=min(SAMPLE_SIZE, len(test_df)), replace=False)

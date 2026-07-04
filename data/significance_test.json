@@ -1,12 +1,59 @@
 {
  "n_boot": 3000,
- "mean_diff_gb_minus_lr": -0.004580043425874622,
- "ci_diff_gb_minus_lr": [
-  -0.016531533254937773,
-  0.007418886815297239
- ],
- "p_gb_beats_lr": 0.22133333333333333,
- "p_lr_beats_gb": 0.7786666666666666,
- "mean_diff_gb_minus_sb": -0.021887215112813236,
- "p_gb_beats_statsbomb": 0.0026666666666666666
+ "pairs": {
+  "XGBoost vs Logistic Regression": {
+   "mean_diff": 0.001975032058513367,
+   "ci_diff": [
+    -0.0058037902839524836,
+    0.009781088433362298
+   ],
+   "p_a_beats_b": 0.6893333333333334,
+   "p_b_beats_a": 0.31066666666666665
+  },
+  "XGBoost vs Gradient Boosting": {
+   "mean_diff": 0.0004925380086029363,
+   "ci_diff": [
+    -0.0033318969764412564,
+    0.004507275962797354
+   ],
+   "p_a_beats_b": 0.5863333333333334,
+   "p_b_beats_a": 0.4136666666666666
+  },
+  "Logistic Regression vs Gradient Boosting": {
+   "mean_diff": -0.001482494049910431,
+   "ci_diff": [
+    -0.009881614893462573,
+    0.007294977953898236
+   ],
+   "p_a_beats_b": 0.37366666666666665,
+   "p_b_beats_a": 0.6263333333333334
+  },
+  "XGBoost vs StatsBomb xG": {
+   "mean_diff": -0.022394533760517116,
+   "ci_diff": [
+    -0.034351754841789636,
+    -0.010933898002855786
+   ],
+   "p_a_beats_b": 0.0,
+   "p_b_beats_a": 1.0
+  },
+  "Logistic Regression vs StatsBomb xG": {
+   "mean_diff": -0.024369565819030478,
+   "ci_diff": [
+    -0.03633552147351034,
+    -0.01303647512509498
+   ],
+   "p_a_beats_b": 0.0,
+   "p_b_beats_a": 1.0
+  },
+  "Gradient Boosting vs StatsBomb xG": {
+   "mean_diff": -0.02288707176912005,
+   "ci_diff": [
+    -0.03515557369449075,
+    -0.010941801615456517
+   ],
+   "p_a_beats_b": 0.0,
+   "p_b_beats_a": 1.0
+  }
+ }
 }
