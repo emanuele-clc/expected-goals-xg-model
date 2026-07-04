@@ -49,37 +49,16 @@ Raw extraction script: `src/extract_shots.py`. It walks every match's event file
 
 Full numeric results: `data/model_comparison.csv`, `data/cv_results.csv`, `data/bootstrap_ci.csv`, `data/significance_test.json`.
 
-## Visualizations (`plots/`)
+## Team and player xG performance report
 
-- `roc_curve.png` — ROC curves for all three xG estimates on the held-out test set
-- `bootstrap_auc_distribution.png` — overlapping bootstrap AUC distributions, the clearest visual of the significance result above
-- `calibration_curve.png` — predicted vs. observed goal rate by decile
-- `feature_importance.png` — permutation importance, side by side for both models
-- `shot_map.png` — test-set shot locations on a half-pitch, marker size = predicted xG (logistic regression), colored by outcome
-- `xg_vs_statsbomb.png` — scatter of our model's xG against StatsBomb's own xG (validation)
-- `xg_vs_distance.png` — xG decay with shot distance
-- `dataset_composition.png` — shot counts by competition and gender
+Beyond the raw shot-level model, `src/team_player_performance.py` applies the trained logistic regression to every shot in the dataset (all 4,309, not just the held-out test set — this is a retrospective descriptive analysis, not a predictive evaluation) and aggregates by team and player: actual goals scored vs. total expected goals, and the gap between them. This is the standard "xG over/underperformance" analysis published by outlets like Understat and Opta.
 
-## Files
+**Most notable findings (World Cup 2018 + Women's World Cup 2019 + Euro 2020):**
 
-```
-xg_model_v2/
-├── README.md
-├── data/
-│   ├── shots_raw.csv          # 4,309 shots, 21 columns, 3 competitions
-│   ├── model_comparison.csv   # final held-out test metrics
-│   ├── cv_results.csv         # 5-fold CV metrics (mean ± std)
-│   ├── bootstrap_ci.csv       # bootstrap 95% CI per model
-│   └── significance_test.json # paired bootstrap AUC-difference test
-├── models/
-│   ├── logreg_xg_model.joblib
-│   ├── gboost_xg_model.joblib
-│   ├── penalty_xg.json         # fixed penalty conversion rate
-│   └── best_hyperparameters.json
-├── plots/                     # 8 PNGs described above
-├── requirements.txt
-└── src/
-    ├── extract_shots.py       # StatsBomb JSON -> shots_raw.csv (3 competitions)
-    ├── train_xg_model.py      # feature engineering, CV, tuning, bootstrap, final eval
-    ├── make_plots.py          # all visualizations, loads saved models
-    └── predict_example.py 
+- **Germany (men, WC2018): -6.84 xG differential** — 12.84 xG from 123 shots but only 6 goals scored. This lines up with their infamous group-stage elimination: the underlying shot quality suggests they created enough to advance, but finishing (and variance) went badly against them.
+- **Spain (men, WC2018): -6.56** — 30.56 xG but only 24 goals, another early-exit side (lost in the Round of 16 to Russia on penalties) whose underlying chance creation outpaced their result.
+- **Neymar (Brazil): -2.72** — 4.72 xG from 27 shots, only 2 goals. A concrete number behind the tournament narrative that he underperformed in front of goal.
+- **Harry Kane (England): +3.88** — 8.12 xG from 32 shots, 12 goals scored. Consistent with him winning the WC2018 Golden Boot; the model says it wasn't just shot volume, he finished well above expectation.
+- **USA Women's National Team: +8.73**, the largest team-level overperformance — consistent with them winning the 2019 Women's World Cup outright.
+
+Full tables: `data/team_performance.csv` (68 teams) and `data/player_performance.csv` (943 players, filtered to ≥8 shots, 200+ qualifying). The interactive dashboard (`docs/index.html`) includes sortab

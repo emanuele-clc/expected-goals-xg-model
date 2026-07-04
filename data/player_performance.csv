@@ -1,0 +1,156 @@
+player_name,team_name,shots,goals,xg,xg_diff,xg_per_shot
+Harry Kane,England,32,12,8.12,3.88,0.254
+Denis Cheryshev,Russia,14,5,1.68,3.32,0.12
+Alexandra Morgan Carrasco,United States Women's,20,6,2.77,3.23,0.138
+Cristiane Rozeira de Souza Silva,Brazil Women's,9,4,0.91,3.09,0.101
+Patrik Schick,Czech Republic,16,5,1.92,3.08,0.12
+Xherdan Shaqiri,Switzerland,23,4,1.1,2.9,0.048
+Romelu Lukaku Menama,Belgium,27,8,5.14,2.86,0.19
+Ellen White,England Women's,18,6,3.27,2.73,0.182
+Megan Anna Rapinoe,United States Women's,13,6,3.29,2.71,0.253
+Emil Peter Forsberg,Sweden,29,5,2.43,2.57,0.084
+Cristiano Ronaldo dos Santos Aveiro,Portugal,37,9,6.65,2.35,0.18
+Ivan Perišić,Croatia,31,5,2.71,2.29,0.087
+Yussuf Yurary Poulsen,Denmark,9,3,0.97,2.03,0.108
+Haris Seferović,Switzerland,14,3,1.0,2.0,0.071
+Rosemary Kathleen Lavelle,United States Women's,14,3,1.1,1.9,0.078
+Luka Modrić,Croatia,15,5,3.14,1.86,0.209
+Artem Dzyuba,Russia,13,4,2.45,1.55,0.188
+Karim Benzema,France,11,4,2.48,1.52,0.225
+Takashi Inui,Japan,9,2,0.48,1.52,0.053
+Georginio Wijnaldum,Netherlands,10,3,1.57,1.43,0.157
+Mikkel Damsgaard,Denmark,9,2,0.59,1.41,0.066
+Harry Maguire,England,20,3,1.63,1.37,0.081
+Paul Pogba,France,16,3,1.7,1.3,0.107
+Federico Chiesa,Italy,16,2,0.72,1.28,0.045
+Barbara Bonansea,Italy Women's,10,2,0.74,1.26,0.074
+Roman Yaremchuk,Ukraine,11,2,0.81,1.19,0.074
+Thomas Meunier,Belgium,10,2,0.81,1.19,0.081
+Amandine Henry,France Women's,16,2,0.88,1.12,0.055
+Samantha June Mewis,United States Women's,16,2,0.92,1.08,0.057
+Eva Sofia Jakobsson,Sweden Women's,14,2,0.94,1.06,0.067
+Joakim Mæhle,Denmark,10,2,0.96,1.04,0.096
+Kosovare Asllani,Sweden Women's,16,3,2.03,0.97,0.127
+Kevin De Bruyne,Belgium,17,2,1.04,0.96,0.061
+Pablo Sarabia García,Spain,8,2,1.08,0.92,0.135
+Jennifer Hermoso Fuentes,Spain Women's,17,3,2.09,0.91,0.123
+Andriy Yarmolenko,Ukraine,10,2,1.15,0.85,0.115
+Aleksandr Golovin,Russia,9,2,1.17,0.83,0.13
+Heung-Min Son,South Korea,14,2,1.18,0.82,0.085
+Ferrán Torres García,Spain,8,2,1.22,0.78,0.152
+Diego da Silva Costa,Spain,11,3,2.22,0.78,0.201
+Edinson Roberto Cavani Gómez,Uruguay,16,3,2.23,0.77,0.14
+Lorenzo Insigne,Italy,19,2,1.24,0.76,0.065
+Luis Alberto Suárez Díaz,Uruguay,14,2,1.3,0.7,0.093
+Juan Fernando Quintero Paniagua,Colombia,8,1,0.31,0.69,0.039
+Antoine Griezmann,France,29,5,4.32,0.68,0.149
+Granit Xhaka,Switzerland,8,1,0.39,0.61,0.049
+Ivan Rakitić,Croatia,17,3,2.39,0.61,0.141
+Mikel Oyarzabal Ugarte,Spain,10,2,1.4,0.6,0.14
+Robert Lewandowski,Poland,21,3,2.46,0.54,0.117
+Vivianne Miedema,Netherlands Women's,23,3,2.47,0.53,0.107
+Lindsey Michelle Heaps,United States Women's,9,2,1.49,0.51,0.166
+Mario Mandžukić,Croatia,12,3,2.53,0.47,0.211
+Valentina Giacinti,Italy Women's,8,1,0.54,0.46,0.068
+Mana Iwabuchi,Japan Women's,8,1,0.55,0.45,0.069
+Marko Arnautović,Austria,8,1,0.57,0.43,0.071
+Thomas Delaney,Denmark,11,1,0.64,0.36,0.058
+Fridolina Rolfö,Sweden Women's,12,1,0.64,0.36,0.054
+María José Urrutia Sánchez,Chile Women's,8,1,0.68,0.32,0.085
+Christen Annemarie Press,United States Women's,9,1,0.7,0.3,0.078
+Memphis Depay,Netherlands,12,2,1.71,0.29,0.143
+Hirving Rodrigo Lozano Bahena,Mexico,12,1,0.71,0.29,0.059
+Wahbi Khazri,Tunisia,12,2,1.73,0.27,0.144
+Julie Beth Ertz,United States Women's,12,1,0.75,0.25,0.062
+Radamel Falcao García Zárate,Colombia,9,2,1.77,0.23,0.197
+Valérie Gauvin,France Women's,10,2,1.79,0.21,0.179
+Philippe Coutinho Correia,Brazil,23,2,1.8,0.2,0.078
+Lieke Martens,Netherlands Women's,11,2,1.83,0.17,0.166
+Erin Cuthbert,Scotland W,10,1,0.83,0.17,0.083
+Alexandra Popp,Germany Women's,15,2,1.84,0.16,0.123
+Samantha May Kerr,Australia Women's,20,5,4.88,0.12,0.244
+John Stones,England,11,2,1.88,0.12,0.171
+Ciro Immobile,Italy,18,2,1.88,0.12,0.104
+Kylian Mbappé Lottin,France,23,4,3.89,0.11,0.169
+Eugénie Le Sommer,France Women's,17,2,1.92,0.08,0.113
+Breel-Donald Embolo,Switzerland,15,1,0.93,0.07,0.062
+Carli Anne Hollins,United States Women's,17,3,2.94,0.06,0.173
+Francisco Román Alarcón Suárez,Spain,10,1,0.94,0.06,0.094
+Lina Magull,Germany Women's,8,2,1.94,0.06,0.243
+Steven Zuber,Switzerland,10,1,0.95,0.05,0.095
+Lina Mona Andréa Hurtig,Sweden Women's,9,1,0.97,0.03,0.108
+Andrej Kramarić,Croatia,16,2,2.01,-0.01,0.125
+Lineth Beerensteyn,Netherlands Women's,8,1,1.05,-0.05,0.131
+Kai Havertz,Germany,11,2,2.05,-0.05,0.187
+Toni Kroos,Germany,20,1,1.08,-0.08,0.054
+Min-Ji Yeo,Korea Republic Women's,9,1,1.1,-0.1,0.123
+Sara Däbritz,Germany Women's,20,3,3.13,-0.13,0.157
+Caroline Graham Hansen,Norway Women's,16,2,2.16,-0.16,0.135
+Jill Scott,England Women's,13,1,1.19,-0.19,0.092
+Viktor Claesson,Sweden,8,1,1.21,-0.21,0.151
+Gabrielle Onguene,Cameroon W,10,1,1.25,-0.25,0.125
+José Paolo Guerrero Gonzáles,Peru,9,1,1.25,-0.25,0.139
+Jesse Lingard,England,16,1,1.28,-0.28,0.08
+M'Baye Babacar Niang,Senegal,8,1,1.29,-0.29,0.161
+Eden Hazard,Belgium,23,3,3.31,-0.31,0.144
+Roland Sallai,Hungary,8,0,0.31,-0.31,0.039
+Blerim Džemaili,Switzerland,9,1,1.32,-0.32,0.147
+Emma Stina Blackstenius,Sweden Women's,13,2,2.32,-0.32,0.179
+Martin Braithwaite Christensen,Denmark,20,1,1.33,-0.33,0.067
+Shanice van de Sanden,Netherlands Women's,8,0,0.34,-0.34,0.043
+Mahmoud Ibrahim Hassan,Egypt,8,0,0.34,-0.34,0.043
+Axel Witsel,Belgium,8,0,0.4,-0.4,0.05
+Georgia Stanway,England Women's,8,0,0.4,-0.4,0.05
+Piotr Zieliński,Poland,11,0,0.42,-0.42,0.038
+Christian Dannemann Eriksen,Denmark,14,1,1.42,-0.42,0.102
+Diogo José Teixeira da Silva,Portugal,8,1,1.43,-0.43,0.179
+Roman Zobnin,Russia,10,0,0.45,-0.45,0.045
+Geum-Min Lee,Korea Republic Women's,8,0,0.47,-0.47,0.059
+Hakim Ziyech,Morocco,9,0,0.47,-0.47,0.053
+Cengiz Ünder,Turkey,9,0,0.47,-0.47,0.053
+Sherida Spitse,Netherlands Women's,10,0,0.48,-0.48,0.048
+Miguel Arturo Layún Prado,Mexico,9,0,0.5,-0.5,0.055
+Khadija Monifa Shaw,Jamaica Women's,12,0,0.52,-0.52,0.044
+Marcel Sabitzer,Austria,12,0,0.54,-0.54,0.045
+Domenico Berardi,Italy,15,1,1.59,-0.59,0.106
+Álvaro Borja Morata Martín,Spain,19,3,3.6,-0.6,0.19
+Svenja Huth,Germany Women's,8,0,0.61,-0.61,0.076
+José Andrés Guardado Hernández,Mexico,8,0,0.63,-0.63,0.079
+Yuika Sugasawa,Japan Women's,12,1,1.63,-0.63,0.136
+Kadidiatou Diani,France Women's,12,0,0.64,-0.64,0.053
+Christine Margaret Sinclair,Canada Women's,13,1,1.65,-0.65,0.127
+Raheem Sterling,England,25,3,3.66,-0.66,0.146
+Gylfi Þór Sigurðsson,Iceland,10,1,1.68,-0.68,0.168
+Carlos Alberto Vela Garrido,Mexico,10,1,1.69,-0.69,0.169
+Tomáš Souček,Czech Republic,11,0,0.72,-0.72,0.065
+Alexander Isak,Sweden,8,0,0.76,-0.76,0.095
+Ante Rebić,Croatia,20,1,1.77,-0.77,0.088
+Ricardo Iván Rodríguez Araya,Switzerland,9,0,0.87,-0.87,0.097
+Lionel Andrés Messi Cuccittini,Argentina,18,1,1.94,-0.94,0.108
+Pierre-Emile Højbjerg,Denmark,8,0,0.95,-0.95,0.118
+Mathew Leckie,Australia,9,0,0.95,-0.95,0.106
+Débora Cristiane de Oliveira,Brazil Women's,12,0,0.96,-0.96,0.08
+Manuel Obafemi Akanji,Switzerland,9,1,1.98,-0.98,0.221
+Danielle van de Donk,Netherlands Women's,8,0,1.0,-1.0,0.125
+Mateo Kovačić,Croatia,9,0,1.03,-1.03,0.114
+Thomas Müller,Germany,10,0,1.03,-1.03,0.103
+Timo Werner,Germany,9,0,1.09,-1.09,0.121
+Gerard Piqué Bernabéu,Spain,9,1,2.09,-1.09,0.232
+David Josué Jiménez Silva,Spain,10,0,1.13,-1.13,0.113
+Ruslan Malinovskiy,Ukraine,10,0,1.13,-1.13,0.113
+Michy Batshuayi Tunga,Belgium,8,1,2.17,-1.17,0.271
+Jorge Resurrección Merodio,Spain,9,0,1.22,-1.22,0.135
+Olivier Giroud,France,18,1,2.25,-1.25,0.125
+Andrea Belotti,Italy,11,1,2.26,-1.26,0.205
+Burak Yılmaz,Turkey,10,0,1.26,-1.26,0.126
+Mats Hummels,Germany,11,0,1.39,-1.39,0.126
+Sergio Busquets i Burgos,Spain,9,0,1.41,-1.41,0.156
+Gabriel Fernando de Jesus,Brazil,10,0,1.49,-1.49,0.149
+Gareth Frank Bale,Wales,10,0,1.52,-1.52,0.152
+Nikita Parris,England Women's,10,1,2.53,-1.53,0.253
+Gerard Moreno Balaguero,Spain,18,2,3.59,-1.59,0.199
+Aleksandar Mitrović,Serbia,16,1,2.77,-1.77,0.173
+Janine Elizabeth Sonis,Canada Women's,17,0,1.91,-1.91,0.112
+Daniel Olmo Carvajal,Spain,24,1,2.92,-1.92,0.122
+Neymar da Silva Santos Junior,Brazil,27,2,4.72,-2.72,0.175
+Marcus Berg,Sweden,17,0,2.76,-2.76,0.162

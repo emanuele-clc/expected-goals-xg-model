@@ -3,12 +3,12 @@
 """
 Extracts every "Shot" event from StatsBomb open-data event files across
 multiple competitions and builds a flat shots_raw.csv with engineered features,
-including a simple assist-type feature derived from the key pass event.
+including a simple assist-type feature derived from the key pass event,
+plus player and team names for downstream aggregate analysis.
 """
 import json, os, math, csv
 
 EVENTS_DIR = "/tmp/sbtest/data/events"
-# (competition_id, season_id) pairs included in this dataset
 COMPETITIONS = [
     (43, 3),    # FIFA World Cup 2018
     (72, 30),   # Women's World Cup 2019
@@ -24,16 +24,14 @@ for comp_id, season_id in COMPETITIONS:
         match_info[m["match_id"]] = m
 print(f"Loaded metadata for {len(match_info)} matches across {len(COMPETITIONS)} competitions")
 
-GOAL_X, GOAL_Y = 120.0, 40.0  # statsbomb pitch is 120x80, goal center at y=40
+GOAL_X, GOAL_Y = 120.0, 40.0
 POST1 = (120.0, 36.0)
 POST2 = (120.0, 44.0)
 
 def angle_to_goal(x, y):
-    # angle subtended by the goal mouth from the shot location
     a = math.dist((x,y), POST1)
     b = math.dist((x,y), POST2)
-    c = 8.0  # goal width
-    # law of cosines
+    c = 8.0
     try:
         cos_angle = (a**2 + b**2 - c**2) / (2*a*b)
         cos_angle = max(-1,min(1,cos_angle))
@@ -71,14 +69,13 @@ for match_id, minfo in match_info.items():
         is_goal = 1 if outcome == 'Goal' else 0
         body_part = shot.get('body_part', {}).get('name', '')
         technique = shot.get('technique', {}).get('name', '')
-        shot_type = shot.get('type', {}).get('name', '')  # Open Play, Free Kick, Penalty
+        shot_type = shot.get('type', {}).get('name', '')
         under_pressure = bool(e.get('under_pressure', False))
         first_time = bool(shot.get('first_time', False))
         one_on_one = bool(shot.get('one_on_one', False))
         aerial_won = bool(shot.get('aerial_won', False))
         statsbomb_xg = shot.get('statsbomb_xg', None)
         play_pattern = e.get('play_pattern', {}).get('name', '')
-        # freeze frame -> count defenders/attackers in vicinity
         freeze = shot.get('freeze_frame', []) or []
         n_opponents_close = 0
         gk_positioned = 0
@@ -92,7 +89,6 @@ for match_id, minfo in match_info.items():
                 if ff.get('position', {}).get('name') == 'Goalkeeper':
                     gk_positioned = 1
 
-        # assist type, from the key pass event (if any)
         assist_type = "None"
         key_pass_id = shot.get("key_pass_id")
         if key_pass_id and key_pass_id in by_id:
@@ -112,11 +108,15 @@ for match_id, minfo in match_info.items():
 
         distance = math.dist((x,y), (GOAL_X, GOAL_Y))
         angle = angle_to_goal(x,y)
+        player_name = e.get('player', {}).get('name', '')
+        team_name = e.get('team', {}).get('name', '')
         rows.append({
             'match_id': match_id,
             'competition_name': competition_name,
             'competition_stage': competition_stage,
             'gender': gender,
+            'player_name': player_name,
+            'team_name': team_name,
             'x': x, 'y': y,
             'distance': round(distance,3),
             'angle_deg': round(angle,3),
