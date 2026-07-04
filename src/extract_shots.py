@@ -8,6 +8,13 @@ plus player and team names for downstream aggregate analysis.
 """
 import json, os, math, csv
 
+# NOTE: this script regenerates shots_raw.csv FROM SCRATCH out of a full local
+# clone of https://github.com/statsbomb/open-data (several GB — not part of
+# this repo). shots_raw.csv is already committed under data/, so you normally
+# do NOT need to run this script at all: just use data/shots_raw.csv directly
+# with train_xg_model.py / make_plots.py / team_player_performance.py.
+# If you do want to regenerate it, clone open-data locally and point
+# EVENTS_DIR / MATCHES_DIR at it below.
 EVENTS_DIR = "/tmp/sbtest/data/events"
 COMPETITIONS = [
     (43, 3),    # FIFA World Cup 2018
@@ -15,7 +22,8 @@ COMPETITIONS = [
     (55, 43),   # UEFA Euro 2020
 ]
 MATCHES_DIR = "/tmp/sbtest/data/matches"
-OUT_CSV = "/sessions/peaceful-exciting-albattani/mnt/outputs/xg_model_v2/data/shots_raw.csv"
+BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+OUT_CSV = os.path.join(BASE, "data", "shots_raw.csv")
 
 match_info = {}
 for comp_id, season_id in COMPETITIONS:
@@ -130,19 +138,4 @@ for match_id, minfo in match_info.items():
             'one_on_one': int(one_on_one),
             'aerial_won': int(aerial_won),
             'n_opponents_close': n_opponents_close,
-            'gk_positioned': gk_positioned,
-            'statsbomb_xg': statsbomb_xg,
-            'is_goal': is_goal,
-        })
-
-print("total shots extracted:", len(rows))
-if parse_failures:
-    print(f"{len(parse_failures)} matches failed to parse:", parse_failures[:5])
-if rows:
-    keys = list(rows[0].keys())
-    os.makedirs(os.path.dirname(OUT_CSV), exist_ok=True)
-    with open(OUT_CSV, 'w', newline='') as f:
-        w = csv.DictWriter(f, fieldnames=keys)
-        w.writeheader()
-        w.writerows(rows)
-    print("saved to", OUT_CSV)
+            'gk_position

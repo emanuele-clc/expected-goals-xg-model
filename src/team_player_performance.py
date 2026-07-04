@@ -7,8 +7,7 @@ not a predictive evaluation) to compute, for every team and player across the
 3 competitions: actual goals scored vs. total expected goals (xG), and the gap
 between them (over/underperformance relative to underlying chance quality).
 
-This is the standard "xG over/underperformance" analysis published by outlets
-like Understat, Opta and football analytics media.
+Run from anywhere; all paths are resolved relative to this repository.
 """
 import numpy as np
 import pandas as pd
@@ -16,14 +15,14 @@ import joblib
 import json
 import os
 
-BASE = "/sessions/peaceful-exciting-albattani/mnt/outputs/xg_model_v2"
+BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MIN_SHOTS_PLAYER = 8
 
-df = pd.read_csv(f"{BASE}/data/shots_raw.csv", keep_default_na=False, na_values=[""])
+df = pd.read_csv(os.path.join(BASE, "data", "shots_raw.csv"), keep_default_na=False, na_values=[""])
 df["assist_type"] = df["assist_type"].replace("", "None").fillna("None")
 df["shot_type"] = df["shot_type"].where(df["shot_type"].isin(["Open Play", "Free Kick", "Penalty"]), "Open Play")
 
-penalty_info = json.load(open(f"{BASE}/models/penalty_xg.json"))
+penalty_info = json.load(open(os.path.join(BASE, "models", "penalty_xg.json")))
 PENALTY_XG = penalty_info["penalty_xg"]
 
 model_df = df[df.shot_type != "Penalty"].copy().reset_index(drop=True)
@@ -40,7 +39,7 @@ numeric_features = [
 ]
 categorical_features = ["technique", "play_pattern", "assist_type"]
 
-logreg = joblib.load(f"{BASE}/models/logreg_xg_model.joblib")
+logreg = joblib.load(os.path.join(BASE, "models", "logreg_xg_model.joblib"))
 model_df["xg"] = logreg.predict_proba(model_df[numeric_features + categorical_features])[:, 1]
 
 # Penalties get the fixed empirical conversion rate as their xG
@@ -66,7 +65,7 @@ team["xg_per_shot"] = (team["xg"] / team["shots"]).round(3)
 team["conversion_rate"] = (team["goals"] / team["shots"]).round(3)
 team = team.sort_values("xg_diff", ascending=False).reset_index(drop=True)
 team = team.round({"xg": 2, "xg_diff": 2})
-team.to_csv(f"{BASE}/data/team_performance.csv", index=False)
+team.to_csv(os.path.join(BASE, "data", "team_performance.csv"), index=False)
 
 # ---------------- Player-level aggregation ----------------
 player = full.groupby(["player_name", "team_name"]).agg(
@@ -79,7 +78,7 @@ player["xg_diff"] = player["goals"] - player["xg"]
 player["xg_per_shot"] = (player["xg"] / player["shots"]).round(3)
 player = player.sort_values("xg_diff", ascending=False).reset_index(drop=True)
 player = player.round({"xg": 2, "xg_diff": 2})
-player.to_csv(f"{BASE}/data/player_performance.csv", index=False)
+player.to_csv(os.path.join(BASE, "data", "player_performance.csv"), index=False)
 
 print(f"\n=== TEAM xG OVER-PERFORMANCE (top 5, min {team.shots.min()} shots) ===")
 print(team.head(5)[["team_name", "shots", "goals", "xg", "xg_diff"]].to_string(index=False))

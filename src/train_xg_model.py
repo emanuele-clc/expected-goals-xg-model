@@ -1,7 +1,12 @@
 """
 Expected Goals (xG) model — v2
 Dataset: StatsBomb open data — FIFA World Cup 2018 + Women's World Cup 2019 + UEFA Euro 2020
-(167 matches, 4,309 shots, 2 genders, 3 confederJosé/international contexts)
+(167 matches, 4,309 shots, 2 genders, 3 confederation/international contexts)
+
+Run from anywhere; all paths are resolved relative to this repository
+(the parent of this file's directory), so `python src/train_xg_model.py`
+works out of the box using the shots_raw.csv already committed to the repo
+— no need to re-download the StatsBomb data.
 
 Methodology upgrades over v1:
   - Multi-competition dataset (3x larger, cross-gender)
@@ -12,6 +17,7 @@ Methodology upgrades over v1:
     model-vs-model AUC difference significance
 """
 import json
+import os
 import numpy as np
 import pandas as pd
 import matplotlib
@@ -26,16 +32,14 @@ from sklearn.pipeline import Pipeline
 from sklearn.metrics import (roc_auc_score, roc_curve, brier_score_loss,
                               log_loss, average_precision_score)
 from sklearn.calibration import calibration_curve
-from scipy import stats as sp_stats
 import joblib
-import os
 
 np.random.seed(42)
 
-BASE = "/sessions/peaceful-exciting-albattani/mnt/outputs/xg_model_v2"
-DATA = f"{BASE}/data/shots_raw.csv"
-PLOTS = f"{BASE}/plots"
-MODELS = f"{BASE}/models"
+BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA = os.path.join(BASE, "data", "shots_raw.csv")
+PLOTS = os.path.join(BASE, "plots")
+MODELS = os.path.join(BASE, "models")
 os.makedirs(PLOTS, exist_ok=True)
 os.makedirs(MODELS, exist_ok=True)
 
@@ -131,7 +135,7 @@ def cv_report(name, pipe):
 
 cv_results = [cv_report("Logistic Regression", logreg_pipe.set_params(**logreg_search.best_params_)),
               cv_report("Gradient Boosting", gboost_pipe.set_params(**gboost_search.best_params_))]
-pd.DataFrame(cv_results).to_csv(f"{BASE}/data/cv_results.csv", index=False)
+pd.DataFrame(cv_results).to_csv(os.path.join(BASE, "data", "cv_results.csv"), index=False)
 
 # ---- Refit best models on the FULL training set ----
 logreg.fit(X_train, y_train)
@@ -155,7 +159,7 @@ results = [
     evaluate("Gradient Boosting", y_test, p_gboost),
     evaluate("StatsBomb xG (reference)", y_test, sb_xg_test),
 ]
-pd.DataFrame(results).to_csv(f"{BASE}/data/model_comparison.csv", index=False)
+pd.DataFrame(results).to_csv(os.path.join(BASE, "data", "model_comparison.csv"), index=False)
 
 # ============ Bootstrap 95% CIs + significance test on AUC difference ============
 N_BOOT = 3000
@@ -196,8 +200,8 @@ print(f"\nGradient Boosting - Logistic Regression AUC diff: {diff_gb_lr.mean():.
 print(f"Gradient Boosting - StatsBomb xG AUC diff:        {diff_gb_sb.mean():.4f}  "
       f"95% CI [{lo_d2:.4f}, {hi_d2:.4f}]  P(GB>StatsBomb)={p_gb_beats_sb:.3f}")
 
-pd.DataFrame(ci_rows).to_csv(f"{BASE}/data/bootstrap_ci.csv", index=False)
-with open(f"{BASE}/data/significance_test.json", "w") as f:
+pd.DataFrame(ci_rows).to_csv(os.path.join(BASE, "data", "bootstrap_ci.csv"), index=False)
+with open(os.path.join(BASE, "data", "significance_test.json"), "w") as f:
     json.dump({
         "gb_minus_lr_mean": float(diff_gb_lr.mean()), "gb_minus_lr_ci": [float(lo_d), float(hi_d)],
         "p_gb_beats_lr": float(p_gb_beats_lr),
@@ -207,11 +211,11 @@ with open(f"{BASE}/data/significance_test.json", "w") as f:
     }, f, indent=2)
 
 # ---- Save models ----
-joblib.dump(logreg, f"{MODELS}/logreg_xg_model.joblib")
-joblib.dump(gboost, f"{MODELS}/gboost_xg_model.joblib")
-with open(f"{MODELS}/penalty_xg.json", "w") as f:
+joblib.dump(logreg, os.path.join(MODELS, "logreg_xg_model.joblib"))
+joblib.dump(gboost, os.path.join(MODELS, "gboost_xg_model.joblib"))
+with open(os.path.join(MODELS, "penalty_xg.json"), "w") as f:
     json.dump({"penalty_xg": PENALTY_XG, "n_penalties": len(penalties)}, f)
-with open(f"{MODELS}/best_hyperparameters.json", "w") as f:
+with open(os.path.join(MODELS, "best_hyperparameters.json"), "w") as f:
     json.dump({"logreg": logreg_search.best_params_, "gboost": gboost_search.best_params_}, f, indent=2, default=str)
 
 print("\nSaved models, CV results, bootstrap CIs, significance test.")

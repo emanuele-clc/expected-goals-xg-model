@@ -2,8 +2,11 @@
 Generates all visualizations for the xG model v2, using the saved models
 and a fresh identical train/test split (same random_state as training,
 so the held-out test set matches exactly).
+
+Run from anywhere; all paths are resolved relative to this repository.
 """
 import json
+import os
 import numpy as np
 import pandas as pd
 import matplotlib
@@ -14,12 +17,11 @@ from sklearn.metrics import roc_auc_score, roc_curve
 from sklearn.calibration import calibration_curve
 from sklearn.inspection import permutation_importance
 import joblib
-import os
 
-BASE = "/sessions/peaceful-exciting-albattani/mnt/outputs/xg_model_v2"
-DATA = f"{BASE}/data/shots_raw.csv"
-PLOTS = f"{BASE}/plots"
-MODELS = f"{BASE}/models"
+BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA = os.path.join(BASE, "data", "shots_raw.csv")
+PLOTS = os.path.join(BASE, "plots")
+MODELS = os.path.join(BASE, "models")
 os.makedirs(PLOTS, exist_ok=True)
 
 df = pd.read_csv(DATA, keep_default_na=False, na_values=[""])
@@ -46,15 +48,12 @@ X_train, X_test, y_train, y_test, idx_train, idx_test = train_test_split(
     X, y, model_df.index, test_size=0.2, random_state=42, stratify=y
 )
 
-logreg = joblib.load(f"{MODELS}/logreg_xg_model.joblib")
-gboost = joblib.load(f"{MODELS}/gboost_xg_model.joblib")
+logreg = joblib.load(os.path.join(MODELS, "logreg_xg_model.joblib"))
+gboost = joblib.load(os.path.join(MODELS, "gboost_xg_model.joblib"))
 
 p_logreg = logreg.predict_proba(X_test)[:, 1]
 p_gboost = gboost.predict_proba(X_test)[:, 1]
 sb_xg_test = model_df.loc[idx_test, "statsbomb_xg"].fillna(model_df["statsbomb_xg"].median()).values
-
-boot_ci = pd.read_csv(f"{BASE}/data/bootstrap_ci.csv")
-sig = json.load(open(f"{BASE}/data/significance_test.json"))
 
 # 1. ROC curves
 plt.figure(figsize=(6.5, 6.5))
@@ -69,7 +68,7 @@ plt.ylabel("True Positive Rate")
 plt.title("ROC Curve — held-out test set (n=831)\nWC2018 + WWC2019 + Euro2020")
 plt.legend()
 plt.tight_layout()
-plt.savefig(f"{PLOTS}/roc_curve.png", dpi=150)
+plt.savefig(os.path.join(PLOTS, "roc_curve.png"), dpi=150)
 plt.close()
 
 # 2. Calibration curves
@@ -84,10 +83,10 @@ plt.ylabel("Observed goal rate")
 plt.title("Calibration Curve")
 plt.legend()
 plt.tight_layout()
-plt.savefig(f"{PLOTS}/calibration_curve.png", dpi=150)
+plt.savefig(os.path.join(PLOTS, "calibration_curve.png"), dpi=150)
 plt.close()
 
-# 3. Bootstrap AUC distributions (visualizes significance / overlap between models)
+# 3. Bootstrap AUC distributions
 n = len(y_test)
 rng = np.random.RandomState(42)
 boot_auc = {"Logistic Regression": [], "Gradient Boosting": [], "StatsBomb xG": []}
@@ -109,10 +108,10 @@ plt.ylabel("Density")
 plt.title("Bootstrap distribution of test-set AUC by model")
 plt.legend()
 plt.tight_layout()
-plt.savefig(f"{PLOTS}/bootstrap_auc_distribution.png", dpi=150)
+plt.savefig(os.path.join(PLOTS, "bootstrap_auc_distribution.png"), dpi=150)
 plt.close()
 
-# 4. Feature importance — both models (permutation importance)
+# 4. Feature importance — both models
 fig, axes = plt.subplots(1, 2, figsize=(14, 6))
 for ax, (name, pipe) in zip(axes, [("Logistic Regression", logreg), ("Gradient Boosting", gboost)]):
     prep_fitted = pipe.named_steps["prep"]
@@ -127,10 +126,10 @@ for ax, (name, pipe) in zip(axes, [("Logistic Regression", logreg), ("Gradient B
     ax.set_title(name)
 plt.suptitle("Top Feature Importances")
 plt.tight_layout()
-plt.savefig(f"{PLOTS}/feature_importance.png", dpi=150)
+plt.savefig(os.path.join(PLOTS, "feature_importance.png"), dpi=150)
 plt.close()
 
-# 5. Shot map (test set, logistic regression — the best-performing model here)
+# 5. Shot map (test set, logistic regression)
 def draw_pitch(ax):
     ax.plot([60, 120, 120, 60, 60], [0, 0, 80, 80, 0], color="black")
     ax.plot([120, 102, 102, 120], [62, 62, 18, 18], color="black")
@@ -160,7 +159,7 @@ ax.set_title("Test-set shots — marker size = predicted xG (Logistic Regression
              "World Cup 2018 + Women's World Cup 2019 + Euro 2020")
 ax.legend(loc="lower left")
 plt.tight_layout()
-plt.savefig(f"{PLOTS}/shot_map.png", dpi=150)
+plt.savefig(os.path.join(PLOTS, "shot_map.png"), dpi=150)
 plt.close()
 
 # 6. Our model xG vs StatsBomb's own xG
@@ -172,7 +171,7 @@ plt.ylabel("Our Logistic Regression xG")
 corr = np.corrcoef(sb_xg_test, p_logreg)[0, 1]
 plt.title(f"Model validation: our xG vs. StatsBomb's own xG\nPearson r = {corr:.3f}")
 plt.tight_layout()
-plt.savefig(f"{PLOTS}/xg_vs_statsbomb.png", dpi=150)
+plt.savefig(os.path.join(PLOTS, "xg_vs_statsbomb.png"), dpi=150)
 plt.close()
 
 # 7. xG vs distance
@@ -182,10 +181,10 @@ plt.xlabel("Distance to goal (yards)")
 plt.ylabel("StatsBomb xG")
 plt.title("xG vs. Shot Distance — all non-penalty shots (n={:,})".format(len(model_df)))
 plt.tight_layout()
-plt.savefig(f"{PLOTS}/xg_vs_distance.png", dpi=150)
+plt.savefig(os.path.join(PLOTS, "xg_vs_distance.png"), dpi=150)
 plt.close()
 
-# 8. Dataset composition (new — shows the multi-competition breadth)
+# 8. Dataset composition
 plt.figure(figsize=(7, 5))
 comp_counts = df.groupby(["competition_name", "gender"]).size().unstack(fill_value=0)
 comp_counts.plot(kind="bar", stacked=True, ax=plt.gca(), color=["#3b82f6", "#f472b6"])
@@ -193,7 +192,7 @@ plt.ylabel("Number of shots")
 plt.title("Dataset composition by competition and gender")
 plt.xticks(rotation=20)
 plt.tight_layout()
-plt.savefig(f"{PLOTS}/dataset_composition.png", dpi=150)
+plt.savefig(os.path.join(PLOTS, "dataset_composition.png"), dpi=150)
 plt.close()
 
 print("All plots saved to", PLOTS)
