@@ -2,6 +2,17 @@
 
 An xG model built on real StatsBomb open event data across three competitions, comparing a hyperparameter-tuned logistic regression against a hyperparameter-tuned gradient boosting model, with cross-validation, a held-out test set, and bootstrap significance testing — benchmarked against StatsBomb's own published xG.
 
+## Quick start (try it without downloading any data)
+
+```
+pip install -r requirements.txt
+python src/predict_example.py
+```
+
+This loads the saved, already-trained logistic regression model and prints predicted xG for five hand-made shot scenarios (penalty spot, edge of the box under pressure, tight angle, header from a cross, long range) — a quick sanity check that the model behaves sensibly (see sample output in the script's docstring / below).
+
+To fully reproduce the dataset and retrain from scratch you need a local clone of `statsbomb/open-data` (see "Reproducing / extending" below) — that step requires internet access and isn't needed just to try the model.
+
 ## Dataset
 
 - Source: [StatsBomb open-data](https://github.com/statsbomb/open-data) (free, open license for public research/education use).
@@ -66,14 +77,9 @@ xg_model_v2/
 │   ├── penalty_xg.json         # fixed penalty conversion rate
 │   └── best_hyperparameters.json
 ├── plots/                     # 8 PNGs described above
+├── requirements.txt
 └── src/
     ├── extract_shots.py       # StatsBomb JSON -> shots_raw.csv (3 competitions)
     ├── train_xg_model.py      # feature engineering, CV, tuning, bootstrap, final eval
-    └── make_plots.py          # all visualizations, loads saved models
-```
-
-## Reproducing / extending
-
-To rerun end to end: shallow-clone `statsbomb/open-data` with `git clone --depth 1 --filter=blob:none`, checkout the `matches/{43,72,55}/{3,30,43}.json` and corresponding `data/events/*.json` files, point `EVENTS_DIR`/`MATCHES_DIR` in `extract_shots.py` at your clone, then run `extract_shots.py` → `train_xg_model.py` → `make_plots.py`.
-
-Natural next steps if extending further: add more competitions/seasons (StatsBomb's open-data set now includes several full league seasons) to shrink the bootstrap CIs further; try a shallow neural network or CatBoost with native categorical handling; move from a single held-out split to nested cross-validation for an even less biased performance estimate.
+    ├── make_plots.py          # all visualizations, loads saved models
+    └── predict_example.py 
